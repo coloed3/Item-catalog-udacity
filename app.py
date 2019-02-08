@@ -15,13 +15,15 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/index')
 def index():
+    return render_template('index.html')
 
     # will show the items on the page  return
 
 
 @app.route('/catalog/<string:category_name>')
 def categoryItems(category_name):
-    return render_template('index.html')
+    pass
+
 
 # route for login
 @app.route('/login')
@@ -37,35 +39,35 @@ def gconnect():
 
 
 # gdisconnect    # with op
-@app.route('/gdisconne    # with opct')
-def gdisconnect():
-    pass
+# @app.route('/gdisconne    # with opct')
+# def gdisconnect():
+#     pass
     # will use code from our last project  and will route to logout template
 
 
 # route fdor seeing all our items
 
-@app.route('/catalog/<string:category_name/<string:item_name>')
+@app.route('/catalog/<string:category_name>/<string:item_name>')
 def item_Details(category_name, item_name):
-    render_template('viewitem.html')
+    return "this is cool"
 
 
 # route for adding
 @app.route('/catalog/addnew', methods=['GET', 'POST'])
 def add_item():
-    render_template('additem.html')
+   return render_template('additem.html')
 
 # route for editing
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
 def edit_item(item_name):
-    render_template('edititem.html')
+    return render_template('edititem.html')
 
 # route for deletling
 @app.route('/catalog/<string:item_name>/delete', methods=['GET', 'POST'])
 def delete_item(item_name):
-    render_template('deleteitem.html')
+    return render_template('deleteitem.html')
 
 
 if __name__ == "__main__":
     app.debug = True
-    app.run(host='0.0.0.0', port=5500)
+    app.run(host='0.0.0.0', port=8000)
