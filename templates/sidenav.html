@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+
 
 <nav class="nav has-shadow">
 
@@ -26,36 +29,17 @@
 <section class="main-content columns is-fullheight">
 
   <aside class="column is-2 is-narrow-mobile is-fullheight section is-hidden-mobile">
-
+    <h5>Categories</h5>
     <ul class="menu-list">
-      <li>
-        <a href="#" class="">
+        {% for category in categories  %}
+         <li>
+        <a href="{{ url_for('categoryItems', category_name=category.name)}}" >
           <span class="icon"><i class="fa fa-home"></i></span> Home
         </a>
       </li>
-      <li>
-        <a href="#" class="is-active">
-          <span class="icon"><i class="fa fa-table"></i></span> Links
-        </a>
+        {% endfor %}
 
-        <ul>
-          <li>
-            <a href="#">
-              <span class="icon is-small"><i class="fa fa-link"></i></span> Link1
-            </a>
-          </li>
-          <li>
-            <a href="#">
-              <span class="icon is-small"><i class="fa fa-link"></i></span> Link2
-            </a>
-          </li>
-        </ul>
-      </li>
-      <li>
-        <a href="#" class="">
-          <span class="icon"><i class="fa fa-info"></i></span> About
-        </a>
-      </li>
+
     </ul>
   </aside>
 
@@ -65,7 +49,10 @@
       <div class="card">
         <div class="card-header"><p class="card-header-title">Latest items</p></div>
         <div class="card-content">
-            <div class="content">Content</div>
+            <div class="content">
+                {% block detailcontent %}
+                    {% endblock %}
+            </div>
         </div>
       </div>
       <br />
@@ -77,5 +64,6 @@
 
 </section>
 
-
+{#  end of line #}
+{% endblock %}
 

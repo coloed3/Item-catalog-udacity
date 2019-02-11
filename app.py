@@ -28,7 +28,7 @@ def categoryItems(category_name):
 # route for login
 @app.route('/login')
 def showLogin():
-    return render_template('login.html')
+    return "This is a test"
 
 # google+ oauth login route
 @app.route('/gconnect', methods=['GET', 'POST'])

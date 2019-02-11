@@ -1,6 +1,15 @@
-{% extends 'base.html' %}
-
-{% block content %}
 {#    side bar and main item content is tied to the sidenav.html -- header and login is part of the base.html#}
-   {% include 'sidenav.html' %}
+{% extends "sidenav.html" %}
+
+
+{% block detailcontent %}
+{% with messages = get_flashed_messages()  %}
+ {% if message %}
+  <div class="notification is-primary">{{ message[0] }}</div>
+ {% endif %}
+{% endwith %}
+
+{#    will view list of items#}
+{% include 'itemlist.html' %}
+
 {% endblock %}
