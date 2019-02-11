@@ -7,15 +7,30 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import AccessTokenCredentials
 # from database_setup need to finish set up of db
+from database_setup import Base, User, Category,Item, engine
+# will call json file using global function for our file from google chrome
+client_secrets ={}
 
 
 app = Flask(__name__)
+Base.metadata.bind = engine
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
 
-# wil use to show some of the lates items we add
+
+"""Below will be the bases of the lates items"""
 @app.route('/')
 @app.route('/index')
+@app.route('/index.json', endpoint="index-json")
 def index():
-    return render_template('index.html')
+    logged_in = is_logged_in()
+    items = session.query(Item).order_by(Item.id.asc()).all()
+    if request.path.endswith('.json'):
+        return jsonify(jsonList=[i.serialize for i in items])
+    categories = session.query(Category).all()
+
+    return render_template('index.html', categories=categories,
+                           items=items, logged_in=logged_in, section_title="Latest Items")
 
     # will show the items on the page  return
 
