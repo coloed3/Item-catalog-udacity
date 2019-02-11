@@ -16,29 +16,54 @@ app = Flask(__name__)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+engine = create_engine('sqlite:///catalogsdatabase.db')
 
-
-"""Below will be the bases of the lates items"""
+"""Below will be the bases of the latest items"""
 @app.route('/')
 @app.route('/index')
 @app.route('/index.json', endpoint="index-json")
 def index():
     logged_in = is_logged_in()
-    items = session.query(Item).order_by(Item.id.asc()).all()
+
+    items = session.query(Item).order_by(Item.id.desc()).all()
+
     if request.path.endswith('.json'):
-        return jsonify(jsonList=[i.serialize for i in items])
+        return jsonify(json_list=[i.serialize for i in items])
+
     categories = session.query(Category).all()
 
-    return render_template('index.html', categories=categories,
-                           items=items, logged_in=logged_in, section_title="Latest Items")
+    return render_template('index.html',
+                           categories=categories,
+                           items=items,
+                           logged_in=logged_in,
+                           section_title="Latest Items",
+                           )
 
-    # will show the items on the page  return
+
+
+
 
 
 @app.route('/catalog/<string:category_name>')
+@app.route('/catalog/<string:category_name>.json',
+           endpoint="category-json")
 def categoryItems(category_name):
-    pass
+    items = session.query(Item).filter_by(category_name=category_name).all()
 
+    if request.path.endswith('.json'):
+        return jsonify(json_list=[i.serialize for i in items])
+
+    categories = session.query(Category).all()
+
+    logged_in = is_logged_in()
+    return render_template('index.html',
+                           categories=categories,
+                           current_category=category_name,
+                           items=items,
+                           logged_in=logged_in,
+                           section_title="%s Items (%d items)" % (
+                               category_name, len(items)),
+                           )
 
 # route for login
 @app.route('/login')
@@ -83,6 +108,11 @@ def delete_item(item_name):
     return render_template('deleteitem.html')
 
 
+
+# ====== took this from our crud course for creating function for actions we need to preform
+def is_logged_in():
+    access_token = login_session.get('access_token')
+    return access_token is not None
 if __name__ == "__main__":
     app.debug = True
     app.run(host='0.0.0.0', port=8000)

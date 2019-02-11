@@ -8,12 +8,11 @@
 </div>
 {% endif %}
 
-<h5>{{ section.title }}</h5>
-<ul class="menu-list">
+<ul class="panel">
 {% for item in items %}
     <li>
-        <a href="{{ url_for('item_details' category_name=item.category_name, item_name=item.name }}">{{ item.name }}</a>
-        <span class="list-item">({{ item.category_name }})</span>
+         <a href="{{url_for('item_Details', category_name=item.category_name, item_name=item.name)}}">{{item.name}}</a>
+        <span >({{ item.category_name }})</span>
     </li>
 {% endfor %}
 </ul>

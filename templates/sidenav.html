@@ -2,7 +2,7 @@
 {% block content %}
 
 
-<nav class="nav has-shadow">
+<nav class="menu has-shadow">
 
     <label for="menu-toggle" class="nav-toggle">
         <span></span>
@@ -11,16 +11,14 @@
     </label>
     <input type="checkbox" id="menu-toggle" class="is-hidden"/>
     <div class="nav-right nav-menu">
-        <a class="nav-item is-tab is-hidden-tablet">
-            <span class="icon"><i class="fa fa-home"></i></span> Home
-        </a>
-        <a class="nav-item is-tab is-hidden-tablet">
-            <span class="icon"><i class="fa fa-table"></i></span> Links
-        </a>
-        <a class="nav-item is-tab is-hidden-tablet">
-            <span class="icon"><i class="fa fa-info"></i></span> About
-        </a>
+        {% for category in categories  %}
 
+
+
+        <a class="nav-item is-tab is-hidden-tablet" href="{{ url_for('categoryItems', category_name=category.name)}}"">
+           {{ category.name }}
+        </a>
+          {% endfor %}
 
 
     </div>
@@ -34,7 +32,7 @@
         {% for category in categories  %}
          <li>
         <a href="{{ url_for('categoryItems', category_name=category.name)}}" >
-          <span class="icon"><i class="fa fa-home"></i></span> Home
+          {{ category.name }}
         </a>
       </li>
         {% endfor %}
