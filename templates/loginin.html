@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="hero">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title" id="results">
+          You've already logged in. Lets get ya to the right page ...
+      </h1>
+
+    </div>
+  </div>
+</section>
+
+    <Script>
+        setTimeout(function(){
+            window.location.href='/';
+        }, 2000)
+    </Script>
+{% endblock %}
