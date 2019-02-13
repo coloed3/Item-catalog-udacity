@@ -66,9 +66,21 @@ def categoryItems(category_name):
                            )
 
 # route for login
+# below code taken from restaurant app and modified for this project.
+# get_token() is a function that will allow for us to "encrypt" the string
 @app.route('/login')
 def showLogin():
-    return "This is a test"
+    access_token = login_session.get('access_token')
+
+    if access_token is None:
+        state = getToken()
+        login_session['state'] = state
+
+        return render_template('login.html', STATE=state,
+                               CLIENT_ID=client_secrets['client_id'])
+    else:
+        return render_template('loginin.html')
+
 
 # google+ oauth login route
 @app.route('/gconnect', methods=['GET', 'POST'])
@@ -113,6 +125,12 @@ def delete_item(item_name):
 def is_logged_in():
     access_token = login_session.get('access_token')
     return access_token is not None
+
+# ===== Function used for login in encryption
+def getToken():
+    return ''.join(random.choice(string.ascii_uppercase + string.digits)
+                   for x in xrange(32))
+
 if __name__ == "__main__":
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
