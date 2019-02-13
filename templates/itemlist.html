@@ -3,7 +3,7 @@
 {% if currentCategory %}
     <a href="{{ url_for('add_item', default_category=current_category) }}" class="button has-background-danger">Add Item</a>
     {% else %}
-    <a href="{{url_for('add_item')}}" class="button has-background-warning">Add Item</a>
+    <a href="{{url_for('add_item')}}" class="button has-background-warning"> Add Item   <i class="fas fa-plus"></i></a>
 {% endif %}
 </div>
 {% endif %}

@@ -30,3 +30,13 @@ html, body, #app {
 .navbar{
   padding:10px;
 }
+
+.fa-plus{
+  padding-left: 2px;
+   font-size: 12px;
+}
+
+.fa-user{
+  font-size: 15px;
+  padding-right: 3px;
+}
