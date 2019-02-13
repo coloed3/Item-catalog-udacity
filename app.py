@@ -2,14 +2,26 @@
 from flask import Flask, request, render_template, redirect, flash, make_response, jsonify
 from flask import session as login_session
 from sqlalchemy import create_engine
+import random
+import string
+import httplib2
+import os
+import json
+import requests
 from sqlalchemy.orm import sessionmaker
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import AccessTokenCredentials
 # from database_setup need to finish set up of db
 from database_setup import Base, User, Category,Item, engine
+
 # will call json file using global function for our file from google chrome
-client_secrets ={}
+client_secrets= {}
+
+def load_json_file():
+    # function for loading the json file for my secret key
+    global client_secrets
+    client_secrets = json.load(open('client_secret.json'))['web']
 
 
 app = Flask(__name__)
