@@ -16,14 +16,14 @@ from oauth2client.client import AccessTokenCredentials
 from database_setup import Base, User, Category,Item, engine
 
 # will call json file using global function for our file from google chrome
-client_secrets= {}
-
-def load_json_file():
-    # function for loading the json file for my secret key
+client_secrets={}
+#function below is used to open the file
+"""======================================================================="""
+def load_json_secrets():
     global client_secrets
-    client_secrets = json.load(open('client_secret.json'))['web']
+    client_secrets = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
 
-
+"""=========================================================================="""
 app = Flask(__name__)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
@@ -141,8 +141,9 @@ def is_logged_in():
 # ===== Function used for login in encryption
 def getToken():
     return ''.join(random.choice(string.ascii_uppercase + string.digits)
-                   for x in xrange(32))
+                    for x in xrange(32))
 
 if __name__ == "__main__":
+    load_json_secrets()
     app.debug = True
     app.run(host='0.0.0.0', port=8000)
