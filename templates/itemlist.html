@@ -1,18 +1,17 @@
 {% if logged_in %}
 <div class="section">
-{% if currentCategory %}
+    {% if currentCategory %}
     <a href="{{ url_for('add_item', default_category=current_category) }}" class="button has-background-danger">Add Item</a>
     {% else %}
-    <a href="{{url_for('add_item')}}" class="button has-background-warning"> Add Item   <i class="fas fa-plus"></i></a>
-{% endif %}
+    <a href="{{url_for('add_item')}}" class="button has-background-warning"> Add Item <i class="fas fa-plus"></i></a>
+    {% endif %}
 </div>
 {% endif %}
-
 <ul class="panel-blocks">
-{% for item in items %}
+    {% for item in items %}
     <li>
-         <a href="{{url_for('item_Details', category_name=item.category_name, item_name=item.name)}}">{{item.name}}</a>
-        <span >({{ item.category_name }})</span>
+        <a href="{{url_for('item_Details', category_name=item.category_name, item_name=item.name)}}">{{item.name}}</a>
+        <span>{{ item.category_name }}</span>
     </li>
-{% endfor %}
+    {% endfor %}
 </ul>

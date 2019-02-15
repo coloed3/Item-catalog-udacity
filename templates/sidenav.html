@@ -1,67 +1,49 @@
 {% extends 'base.html' %}
 {% block content %}
-
-
 <nav class="menu has-shadow">
-
     <label for="menu-toggle" class="nav-toggle">
         <span></span>
         <span></span>
         <span></span>
     </label>
-    <input type="checkbox" id="menu-toggle" class="is-hidden"/>
+    <input type="checkbox" id="menu-toggle" class="is-hidden" />
     <div class="nav-right nav-menu">
-        {% for category in categories  %}
-
-
-
-        <a class="nav-item is-tab is-hidden-tablet" href="{{ url_for('categoryItems', category_name=category.name)}}"">
-           {{ category.name }}
+        {% for category in categories %}
+        <a class="nav-item is-tab is-hidden-tablet" href="{{ url_for('categoryItems', category_name=category.name)}}">
+            {{ category.name }}
         </a>
-          {% endfor %}
-
-
+        {% endfor %}
     </div>
 </nav>
-
-<section class="main-content columns is-fullheight">
-
-  <aside class="column is-2 is-narrow-mobile is-fullheight section is-hidden-mobile">
-    <h5>Categories</h5>
-    <ul class="menu-list">
-        {% for category in categories  %}
-         <li>
-        <a href="{{ url_for('categoryItems', category_name=category.name)}}" >
-          {{ category.name }}
-        </a>
-      </li>
-        {% endfor %}
-
-
-    </ul>
-  </aside>
-
-  <div class="container column is-10">
-    <div class="section">
-
-      <div class="card">
-        <div class="card-header"><p class="card-header-title">Latest items</p></div>
-        <div class="card-content">
-            <div class="content">
-                {% block detailcontent %}
-                    {% endblock %}
+<section class=" main-content columns is-fullheight">
+    <aside class="column is-2 is-narrow-mobile is-fullheight section is-hidden-mobile">
+        <h5 class="has-text-black">Categories</h5>
+        <ul class="menu-list">
+            {% for category in categories %}
+            <li>
+                <a href="{{ url_for('categoryItems', category_name=category.name)}}">
+                    {{ category.name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </aside>
+    <div class="container column is-10">
+        <div class="section">
+            <div class="card">
+                <div class="card-header">
+                    <p class="card-header-title is-size-2 has-text-grey-light ">Latest items</p>
+                </div>
+                <div class="card-content">
+                    <div class="content">
+                        {% block detailcontent %}
+                        {% endblock %}
+                    </div>
+                </div>
             </div>
+            <br />
         </div>
-      </div>
-      <br />
-
-
-
     </div>
-  </div>
-
 </section>
-
-{#  end of line #}
+{# end of line #}
 {% endblock %}
-
