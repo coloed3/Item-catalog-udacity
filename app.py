@@ -201,28 +201,25 @@ sessions"""
 
 @app.route('/gdisconnect')
 def gdisconnect():
-
- # we will need to only disconnect a connected user. Making user reconnect with oauth
+    # Only disconnect a connected user.
     access_token = login_session.get('access_token')
     if access_token is None:
         login_session.clear()
         response = make_response(
-            json.dumps('Current User is not connected'), 401)
-        response.header['Content-Type'] = 'application/json'
+            json.dumps('Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
         return response
+
     login_session.clear()
-    url = 'https://accounts.google.com/o/auth2/revoke?token=%s' % access_token
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     if result['status'] != '200':
-
-       # We will use this as a validation  point incase we get
-       # a token that was invalid
-
+        # For whatever reason, the given token was invalid.
         login_session.clear()
-    return redirect(render_template('index.html'))
-    return render_template('logout.html')
+        return redirect(render_template('index.html'))
 
+    return render_template('logout.html')
 
 # route fdor seeing all our items
 

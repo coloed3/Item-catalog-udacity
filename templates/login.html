@@ -1,66 +1,63 @@
 {% extends 'base.html' %}
-
-
 {% block content %}
 <section class="hero is-light">
-  <div class="hero-body">
-    <div class="container">
-      <h1 class="title">
-        Catalog Login:
-      </h1>
-      <h2 class="subtitle">
-        please login using your google credentials
-      </h2>
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title">
+                Catalog Login:
+            </h1>
+            <h2 class="subtitle">
+                please login using your google credentials
+            </h2>
+        </div>
     </div>
-  </div>
 </section>
-    <section class="section">
-            <div class="container">
-                <div id="btn-signin">
-  <span class="g-signin" data-scope="openid email" data-clientid="{{CLIENT_ID}}" data-redirecturi="postmessage" data-accesstype="offline" data-cookiepolicy="single_host_origin" data-callback="signInCallback" data-approvalprompt="force">
-  </span>
-</div>
+<section class="section">
+    <div class="container">
+        <div id="btn-signin">
+            <span class="g-signin" data-scope="openid email" data-clientid="{{CLIENT_ID}}" data-redirecturi="postmessage" data-accesstype="offline" data-cookiepolicy="single_host_origin" data-callback="signInCallback" data-approvalprompt="force">
+            </span>
+        </div>
+        <div id="result"></div>
+    </div>
+</section>
+{# below is the ajax used from the restaurant app #}
+<script>
+var signInButton = document.getElementById('btn-signin');
+var resultContainer = document.getElementById('result');
 
-                <div id="result"></div>
-            </div>
-    </section>
-{#    below is the ajax used from the restaurant app #}
-    <script>
-       	var signInButton = document.getElementById('btn-signin');
-	var resultContainer = document.getElementById('result');
+function signInCallback(authResult) {
+    if (authResult.code) {
+        signInButton.style.display = 'none';
 
-	function signInCallback(authResult) {
-	  if (authResult.code) {
-	    signInButton.style.display = 'none';
+        $.ajax({
+            type: 'POST',
+            url: '/gconnect?state={{STATE}}',
+            processData: false,
+            data: authResult['code'],
+            contentType: 'application/octet-stream; charset=utf-8',
+            success: function(result) {
+                if (result) {
+                    // The login was successful
+                    resultContainer.innerHTML = "<div class='notification is-success'><h2>Login Successful! Routing now</h2></div>";
 
-	    $.ajax({
-	      type: 'POST',
-	      url: '/gconnect?state={{STATE}}',
-	      processData: false,
-	      data: authResult['code'],
-	      contentType: 'application/octet-stream; charset=utf-8',
-	      success: function (result) {
-	        if (result) {
-	          // The login was successful
-	          resultContainer.innerHTML = 'Login Successful!<br><br>Redirecting...';
+                    setTimeout(function() {
+                        window.location.href = "/";
+                    }, 3000);
 
-	          setTimeout(function () {
-	            window.location.href = "/";
-	          }, 2000);
+                } else if (authResult['error']) {
 
-	        } else if (authResult['error']) {
+                    resultContainer.innerHTML = 'Error: ' + authResult['error'];
 
-	          resultContainer.innerHTML = 'Error: ' + authResult['error'];
+                } else {
+                    // something failed
 
-	        } else {
-	          // something failed
+                    resultContainer.innerHTML = 'Check your configuration.';
+                }
+            }
 
-	          resultContainer.innerHTML = 'Check your configuration.';
-	        }
-	      }
-
-	    });
-	  }
-	}
-    </script>
+        });
+    }
+}
+</script>
 {% endblock %}

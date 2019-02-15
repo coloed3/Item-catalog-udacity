@@ -2,8 +2,8 @@
 {% block content %}
 <div class="section">
     <div class="container">
-        <div class="notification is-warning">
-            <h4 class="title"> You have been logged out redirecting....</h4>
+        <div class="notification hero is-warning">
+            <h4 class="title"> You have been logged out. Redirecting now..... </h4>
         </div>
     </div>
 </div>
@@ -11,6 +11,6 @@
 //  function below goes back to the login.html where results = logged out
 setTimeout(function() {
     window.location.href = "/";
-}, 4000);
+}, 3000);
 </script>
 {% endblock %}
