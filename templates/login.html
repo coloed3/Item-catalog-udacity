@@ -39,7 +39,7 @@ function signInCallback(authResult) {
             success: function(result) {
                 if (result) {
                     // The login was successful
-                    resultContainer.innerHTML = "<div class='notification is-success'><h2>Login Successful! Routing now</h2></div>";
+                    resultContainer.innerHTML = "<div class='notification is-success is-size-1'><h2>Login Successful! Routing now</h2></div>";
 
                     setTimeout(function() {
                         window.location.href = "/";
