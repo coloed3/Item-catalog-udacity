@@ -13,15 +13,18 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import AccessTokenCredentials
 # from database_setup need to finish set up of db
-from database_setup import Base, User, Category,Item, engine
+from database_setup import Base, User, Category, Item, engine
 
 # will call json file using global function for our file from google chrome
-client_secrets={}
-#function below is used to open the file
+client_secrets = {}
+# function below is used to open the file
 """======================================================================="""
+
+
 def load_json_secrets():
     global client_secrets
     client_secrets = json.load(open('client_secrets.json'))['web']
+
 
 """=========================================================================="""
 
@@ -32,6 +35,8 @@ session = DBSession()
 engine = create_engine('sqlite:///catalogsdatabase.db')
 
 """Below will be the bases of the latest items"""
+
+
 @app.route('/')
 @app.route('/index')
 @app.route('/index.json', endpoint="index-json")
@@ -51,10 +56,6 @@ def index():
                            logged_in=logged_in,
                            section_title="Latest Items",
                            )
-
-
-
-
 
 
 @app.route('/catalog/<string:category_name>')
@@ -81,6 +82,8 @@ def categoryItems(category_name):
 # route for login
 # below code taken from restaurant app and modified for this project.
 # get_token() is a function that will allow for us to "encrypt" the string
+
+
 @app.route('/login')
 def showLogin():
     access_token = login_session.get('access_token')
@@ -95,6 +98,8 @@ def showLogin():
         return render_template('loginin.html')
 
 # google+ oauth login route
+
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -189,11 +194,34 @@ def gconnect():
     print("completed")
     return output
 
-    # will be using code used in the last project to brign over
-    # will need to make sure the json files are working as intended
+
+""" using information and code from restaurant project. to disconnect and close
+sessions"""
 
 
+@app.route('/gdisconnect')
+def gdisconnect():
 
+ # we will need to only disconnect a connected user. Making user reconnect with oauth
+    access_token = login_session.get('access_token')
+    if access_token is None:
+        login_session.clear()
+        response = make_response(
+            json.dumps('Current User is not connected'), 401)
+        response.header['Content-Type'] = 'application/json'
+        return response
+    login_session.clear()
+    url = 'https://accounts.google.com/o/auth2/revoke?token=%s' % access_token
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    if result['status'] != '200':
+
+       # We will use this as a validation  point incase we get
+       # a token that was invalid
+
+        login_session.clear()
+    return redirect(render_template('index.html'))
+    return render_template('logout.html')
 
 
 # route fdor seeing all our items
@@ -206,21 +234,28 @@ def item_Details(category_name, item_name):
 # route for adding
 @app.route('/catalog/addnew', methods=['GET', 'POST'])
 def add_item():
-   return render_template('additem.html')
+    return render_template('additem.html')
 
 # route for editing
+
+
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
 def edit_item(item_name):
     return render_template('edititem.html')
 
 # route for deletling
+
+
 @app.route('/catalog/<string:item_name>/delete', methods=['GET', 'POST'])
 def delete_item(item_name):
     return render_template('deleteitem.html')
 
+
 """=========================================================================
 code below taken from the restaurant application. 
 ==========================================================================="""
+
+
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
@@ -243,14 +278,18 @@ def getUserID(email):
         return None
 
 # ====== took this from our crud course for creating function for actions we need to preform
+
+
 def is_logged_in():
     access_token = login_session.get('access_token')
     return access_token is not None
 
 # ===== Function used for login in encryption
+
+
 def getToken():
     return ''.join(random.choice(string.ascii_uppercase + string.digits)
-                    for x in xrange(32))
+                   for x in xrange(32))
 
 
 if __name__ == "__main__":
