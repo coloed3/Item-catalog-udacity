@@ -1,7 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
-<h5>testing the route.</h5>
-<h5>{{item.name}}</h5>
+<article class="tile  is-child is-grey" id="description">
+    <div class="container ">
+        <p class="title">{{item.name}}</p>
+        <p class="subtitle has-text-justified">Description:</p>
+        <div class="content has-text-justified">
+            {{item.description}}
+        </div>
+    </div>
+</article>
 {# testing description #}
-<p>Description: {{item.description}}</p>
 {% endblock content %}
