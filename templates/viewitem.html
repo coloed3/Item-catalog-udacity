@@ -1,1 +1,7 @@
-{% extends %}
+{% extends 'base.html' %}
+{% block content %}
+<h5>testing the route.</h5>
+<h5>{{item.name}}</h5>
+{# testing description #}
+<p>Description: {{item.description}}</p>
+{% endblock content %}

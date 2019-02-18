@@ -189,7 +189,6 @@ def gconnect():
     output += '!</h1>'
     output += '<img src="'
     output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     print("completed")
     return output
@@ -223,9 +222,21 @@ def gdisconnect():
 
 # route fdor seeing all our items
 
+
 @app.route('/catalog/<string:category_name>/<string:item_name>')
+@app.route('/catalog/<string:category_name>/<string:item_name>.json',
+           endpoint="item-json")
 def item_Details(category_name, item_name):
-    return "this is cool"
+    item = session.query(Item).filter_by(name=item_name).one()
+
+    if request.path.endswith('.json'):
+        return jsonify(item.serialize)
+    logged_in = is_logged_in()
+    user_id = login_session.get('user_id')
+
+    return render_template('viewitem.html', item=item,
+                           user_id=user_id,
+                           logged_in=logged_in)
 
 
 # route for adding
