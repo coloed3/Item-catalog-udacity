@@ -49,16 +49,24 @@ body,
 }
 
 #description {
-    padding-top: 3rem;
+
+    background: #f3f3f3;
+    padding: 180px 100px;
+}
+#description .title{
+    font-size: 4rem !important;
 }
 
 #description .subtitle {
     padding-top: 20px;
     margin-bottom: -5px;
     font-weight: 600;
+    font-size: 2rem;
 }
 
 #description .content {
     font-weight: 400;
+    margin-top: 20px;
+    font-size: 1.2rem;
 
 }

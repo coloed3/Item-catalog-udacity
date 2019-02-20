@@ -196,8 +196,6 @@ def gconnect():
 
 """ using information and code from restaurant project. to disconnect and close
 sessions"""
-
-
 @app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user.
@@ -220,9 +218,10 @@ def gdisconnect():
 
     return render_template('logout.html')
 
-# route fdor seeing all our items
 
 
+"""Below will allow user to view items name and description. in both the route and
+json"""
 @app.route('/catalog/<string:category_name>/<string:item_name>')
 @app.route('/catalog/<string:category_name>/<string:item_name>.json',
            endpoint="item-json")
@@ -239,7 +238,7 @@ def item_Details(category_name, item_name):
                            logged_in=logged_in)
 
 
-# route for adding
+"""Below will allow user to add item, after they login."""
 @app.route('/catalog/addnew', methods=['GET', 'POST'])
 def add_item():
     return render_template('additem.html')
