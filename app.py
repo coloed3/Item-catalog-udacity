@@ -241,7 +241,36 @@ def item_Details(category_name, item_name):
 """Below will allow user to add item, after they login."""
 @app.route('/catalog/addnew', methods=['GET', 'POST'])
 def add_item():
-    return render_template('additem.html')
+    logged_in = is_logged_in()
+    if request.method == 'POST':
+        user_id = login_session.get('user_id')
+        """below will throw an error if user is not authenticated"""
+        if user_id is None:
+            return render_template('404.html', error='Invalid User',
+                                   logged_in =logged_in)
+    category = request.form['category_name']
+    item_name = request. form['name']
+    item_description = request.form['description']
+    """https://stackoverflow.com/questions/13013734/string-strip-in-python
+    will used to make sure spaces before and after the string are not blank"""
+    if category is None or category.strip() =='':
+        return render_template('404.html', error='Wrong Name type',
+                               logged_in=logged_in)
+    item = Item(name=item_name,
+                description =item_description,
+                user_id=user_id,
+                category_nam=category)
+    session.add(item)
+    session.commit()
+    flash('You have added a new Item')
+    return redirect(url_for('item_Details', category_name=item.category_name,
+                            item_name=item.name))
+    else:
+    categories = session.query(Category).all()
+    return render_template('item_add.html', categories=categories,logged_in=logged_in)
+
+
+
 
 # route for editing
 
