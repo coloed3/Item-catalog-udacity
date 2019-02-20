@@ -1,12 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
+<!---->
 <article class="card  is-child " id="description">
         <p class="title">{{item.name}}</p>
         <p class="subtitle has-text-justified">Description:</p>
         <div class="content has-text-justified">
             {{item.description}}
+
+           {% if logged_in %}
+               <p class="buttons">
+                              <a class="button" href="{{ url_for('edit_item', item_name=item.name) }}">
+                                    <span class="icon">
+                                       <i class="fas fa-edit"></i>
+                                    </span>
+                                  <span>Edit</span>
+                                 </a>
+                                <a class="button is-danger" href="{{ url_for('delete_item', item_name=item.name) }}">
+                                    <span class="icon">
+                                       <i class="fas fa-trash-alt"></i>
+                                    </span>
+                                  <span>Delete</span>
+                                 </a>
+                       </p>
+            {% endif %}
         </div>
 
 </article>
 {# testing description #}
-{% endblock content %}
+{% endblock %}
