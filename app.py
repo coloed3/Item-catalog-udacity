@@ -239,36 +239,48 @@ def item_Details(category_name, item_name):
 
 
 """Below will allow user to add item, after they login."""
-@app.route('/catalog/addnew', methods=['GET', 'POST'])
-def add_item():
+@app.route('/catalog/add-item', methods=['GET', 'POST'])
+def add_new_item():
     logged_in = is_logged_in()
+
     if request.method == 'POST':
         user_id = login_session.get('user_id')
-        """below will throw an error if user is not authenticated"""
-        if user_id is None:
-            return render_template('404.html', error='Invalid User',
-                                   logged_in =logged_in)
-    category = request.form['category_name']
-    item_name = request. form['name']
-    item_description = request.form['description']
-    """https://stackoverflow.com/questions/13013734/string-strip-in-python
-    will used to make sure spaces before and after the string are not blank"""
-    if category is None or category.strip() =='':
-        return render_template('404.html', error='Wrong Name type',
-                               logged_in=logged_in)
-    item = Item(name=item_name,
-                description =item_description,
-                user_id=user_id,
-                category_nam=category)
-    session.add(item)
-    session.commit()
-    flash('You have added a new Item')
-    return redirect(url_for('item_Details', category_name=item.category_name,
-                            item_name=item.name))
-    else:
-    categories = session.query(Category).all()
-    return render_template('item_add.html', categories=categories,logged_in=logged_in)
 
+        if user_id is None:
+            # ensure only authenticated users are allowed
+            return render_template('404.html',
+                                   error='User is invalid',
+                                   logged_in=logged_in)
+
+        category = request.form['category_name']
+        item_name = request.form['name']
+        item_description = request.form['description']
+
+        if category is None or category.strip() == '':
+            return render_template('404.html',
+                                   error='Category Name is invalid',
+                                   logged_in=logged_in)
+
+        if item_name is None or item_name.strip() == '':
+            return render_template('404.html',
+                                   error='Item in Category is incorrect',
+                                   logged_in=logged_in)
+
+        item = Item(name=item_name,
+                    description=item_description,
+                    user_id=user_id,
+                    category_name=category)
+        session.add(item)
+        session.commit()
+        flash('Nice, You have added a new item!')
+        return redirect(url_for('item_Details',
+                                category_name=item.category_name,
+                                item_name=item.name))
+    else:
+        categories = session.query(Category).all()
+        return render_template('additem.html',
+                               categories=categories,
+                               logged_in=logged_in)
 
 
 
