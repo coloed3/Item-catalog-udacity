@@ -3,7 +3,7 @@
 
 {% block content %}
     {# header #}
-    <section class="hero is-medium is-primary is-bold">
+    <section class="hero is-light is-bold ">
         <div class="hero-body">
             <div class="container">
                 <h1 class="title">
@@ -15,25 +15,42 @@
     {#below are the forms#}
     <div class="section">
         <div class="container">
-{#        will only show if user is logged in #}
+            {#        will only show if user is logged in #}
             {% if logged_in %}
-            <form method="POST">
-            <div class="field">
-                <div class="control">
-                    <div class="select is-large">
-                        <label for="category-selector" class="label">Category</label>
-                        <select name="category_name" id="category-selector">
-{#                        below will loop through each cateogry#}
-                            {% for category in categories %}
-                             <option value="{{ category.name }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-            </form>
-        </div>
-    </div>
+                <form method="POST">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select ">
+                                <label for="category-selector" class="label">Category</label>
+                                <select name="category_name" id="category-selector">
+                                    {#                        below will loop through each cateogry#}
+                                    {% for category in categories %}
+                                        <option value="{{ category.name }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
 
-    {% endif %}
+                        </div>
+                        <br>
+                    </div>
+                    <br>
+                    <div class="field">
+                        <div class="control">
+                            <label for="name" class="label">Item Name</label>
+                            <input class="input" name="name" type=text" placeholder="Item Name">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="field">
+                        <div class="control">
+                            <label for="description" class="label">Description</label>
+                            <textarea name="description" class="textarea" placeholder="10 lines of textarea" rows="10"></textarea>
+                        </div>
+                    </div>
+                <button class="button is-primary "> Add Item</button>
+                </form>
+                </div>
+                </div>
+
+            {% endif %}
 {% endblock %}
