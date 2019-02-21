@@ -247,12 +247,12 @@ def add_new_item():
 
     if request.method == 'POST':
         # user_id = login_session.get('user_id')
-        #
         # category = request.form['category_name']
         # item_name = request.form['name']
         # item_description = request.form['description']
 
-
+        #added the request.form to the dict vs seperating had issues with session
+        # not saving
         item = Item(name=request.form['name'],
                     description=request.form['description'],
                     user_id=login_session.get('user_id'),
