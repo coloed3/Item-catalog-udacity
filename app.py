@@ -1,5 +1,5 @@
 # usr/bin/python3.71
-from flask import Flask, request, render_template, redirect, flash, make_response, jsonify
+from flask import Flask, request, render_template, redirect, flash, make_response,jsonify, url_for
 from flask import session as login_session
 from sqlalchemy import create_engine
 import random
@@ -242,45 +242,38 @@ def item_Details(category_name, item_name):
 @app.route('/catalog/add-item', methods=['GET', 'POST'])
 def add_new_item():
     logged_in = is_logged_in()
+    if 'username' not in login_session:
+        return redirect('/login')
 
     if request.method == 'POST':
-        user_id = login_session.get('user_id')
+        # user_id = login_session.get('user_id')
+        #
+        # category = request.form['category_name']
+        # item_name = request.form['name']
+        # item_description = request.form['description']
 
-        if user_id is None:
-            # ensure only authenticated users are allowed
-            return render_template('404.html',
-                                   error='User is invalid',
-                                   logged_in=logged_in)
 
-        category = request.form['category_name']
-        item_name = request.form['name']
-        item_description = request.form['description']
-
-        if category is None or category.strip() == '':
-            return render_template('404.html',
-                                   error='Category Name is invalid',
-                                   logged_in=logged_in)
-
-        if item_name is None or item_name.strip() == '':
-            return render_template('404.html',
-                                   error='Item in Category is incorrect',
-                                   logged_in=logged_in)
-
-        item = Item(name=item_name,
-                    description=item_description,
-                    user_id=user_id,
-                    category_name=category)
+        item = Item(name=request.form['name'],
+                    description=request.form['description'],
+                    user_id=login_session.get('user_id'),
+                    category_name=request.form['category_name'])
         session.add(item)
         session.commit()
-        flash('Nice, You have added a new item!')
-        return redirect(url_for('item_Details',
-                                category_name=item.category_name,
+        flash('New item added')
+        return redirect(url_for('item_Details', category_name=item.category_name,
                                 item_name=item.name))
     else:
         categories = session.query(Category).all()
         return render_template('additem.html',
                                categories=categories,
                                logged_in=logged_in)
+
+
+
+
+
+
+
 
 
 

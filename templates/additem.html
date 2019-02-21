@@ -16,7 +16,7 @@
     <div class="section">
         <div class="container">
             {#        will only show if user is logged in #}
-            {% if logged_in %}
+            {% if logged_in and user_id == user_id %}
                 <form method="POST">
                     <div class="field">
                         <div class="control">
@@ -47,10 +47,15 @@
                             <textarea name="description" class="textarea" placeholder="10 lines of textarea" rows="10"></textarea>
                         </div>
                     </div>
-                <button class="button is-primary "> Add Item</button>
+                <button class="button is-primary " value="Create"> Add Item</button>
                 </form>
+
                 </div>
                 </div>
 
+                {% else %}
+                <p class="title is-warning notification">
+                    In order to add new item please be logged in!!
+                </p>
             {% endif %}
 {% endblock %}

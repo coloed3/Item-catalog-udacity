@@ -7,7 +7,7 @@
         <div class="content has-text-justified">
             {{item.description}}
 
-           {% if logged_in and user_id == user_id%}
+           {% if logged_in %}
                <p class="buttons">
                               <a class="button is-info" href="{{ url_for('edit_item', item_name=item.name) }}">
                                     <span class="icon">
