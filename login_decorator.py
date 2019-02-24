@@ -1,4 +1,4 @@
-from _functools import wraps
+from functools import wraps
 from flask import redirect
 from flask import session as login_session
 

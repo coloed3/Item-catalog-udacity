@@ -12,9 +12,11 @@ from sqlalchemy.orm import sessionmaker
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import AccessTokenCredentials
+
+#required_login decrorator
+from login_decorator import required_login
 # from database_setup need to finish set up of db
 from database_setup import Base, User, Category, Item, engine
-
 # will call json file using global function for our file from google chrome
 client_secrets = {}
 # function below is used to open the file
@@ -280,8 +282,19 @@ def add_new_item():
 
 #edit a cat
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
+@required_login
 def edit_item(item_name):
-    return render_template('edititem.html')
+   item = session.query(Item).filter_by(name=item_name).one()
+
+   #verifying if user is the owner of the item
+   validate_creator = getUserInfo(item.user_id)
+   loggin_user = getUserInfo(login_session['user_id'])
+
+   #verify that the user making the  change is the owner
+   if validate_creator.id != login_session['user_id']:
+       flash("Unable to edit this item, This belongs to %s" %validate_creator.name)
+       return redirect(url_for(item_Details))
+
 
 # route for deletling
 
