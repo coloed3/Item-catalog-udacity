@@ -190,7 +190,6 @@ def gconnect():
     output += '<img src="'
     output += login_session['picture']
     flash("you are now logged in as %s" % login_session['username'])
-    print("completed")
     return output
 
 
@@ -277,9 +276,9 @@ def add_new_item():
 
 
 
-# route for editing
 
 
+#edit a cat
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
 def edit_item(item_name):
     return render_template('edititem.html')
