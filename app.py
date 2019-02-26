@@ -14,7 +14,7 @@ from oauth2client.client import FlowExchangeError
 from oauth2client.client import AccessTokenCredentials
 
 #required_login decrorator
-from login_decorator import required_login
+
 # from database_setup need to finish set up of db
 from database_setup import Base, User, Category, Item, engine
 # will call json file using global function for our file from google chrome
@@ -152,8 +152,7 @@ def gconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-    stored_credentials = AccessTokenCredentials(
-        login_session.get('access_token'), 'user-agent-value')
+    stored_credentials = login_session.get('access_token')
 
     stored_gplus_id = login_session.get('gplus_id')
     if stored_credentials is not None and gplus_id == stored_gplus_id:
@@ -185,13 +184,18 @@ def gconnect():
     if not user_id:
         user_id = createUser(login_session)
         login_session['user_id'] = user_id
+    # will show welcome scren
     output = ''
-    output += '<h1>Welcome, '
+    output += '<h2>Welcome, '
     output += login_session['username']
-    output += '!</h1>'
+    output += '!</h2>'
     output += '<img src="'
     output += login_session['picture']
-    flash("you are now logged in as %s" % login_session['username'])
+    output += ' " style = "width: 300px; height: 300px; '
+    output += 'border-radius: 150px;'
+    output += '-webkit-border-radius: 150px;-moz-border-radius: 150px;">'
+    flash("You are now logged in as %s!" % login_session['username'])
+    print("Done!")
     return output
 
 
@@ -219,6 +223,23 @@ def gdisconnect():
 
     return render_template('logout.html')
 
+# logout current user and del sessions
+@app.route('/logout')
+def log_out():
+    """will logout current user"""
+    if 'username' in login_session:
+        gdisconnect()
+        del login_session['gplus_id']
+        del login_session['access_token']
+        del login_session['email']
+        del login_session['picture']
+        del login_session['user_id']
+        flash("You have been successfully logged out")
+        return redirect(url_for('index'))
+    else:
+        flash('User was never logged in')
+        return redirect(url_for('index'))
+
 
 
 """Below will allow user to view items name and description. in both the route and
@@ -237,6 +258,9 @@ def item_Details(category_name, item_name):
     return render_template('viewitem.html', item=item,
                            user_id=user_id,
                            logged_in=logged_in)
+
+
+
 
 
 """Below will allow user to add item, after they login."""
@@ -270,7 +294,10 @@ def add_new_item():
                                logged_in=logged_in)
 
 
-
+# add category
+@app.route('/catalog/add_category', methods=['GET', 'POST'])
+def new_category():
+    return render_template('index.html')
 
 
 
@@ -282,18 +309,57 @@ def add_new_item():
 
 #edit a cat
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
-@required_login
 def edit_item(item_name):
-   item = session.query(Item).filter_by(name=item_name).one()
+    logged_in =is_logged_in()
 
-   #verifying if user is the owner of the item
-   validate_creator = getUserInfo(item.user_id)
-   loggin_user = getUserInfo(login_session['user_id'])
+    if 'username' not in login_session:
+        flash("Please Log in to Continue")
+        return redirect(url_for('index'))
 
-   #verify that the user making the  change is the owner
-   if validate_creator.id != login_session['user_id']:
-       flash("Unable to edit this item, This belongs to %s" %validate_creator.name)
-       return redirect(url_for(item_Details))
+    item =session.query(Item).filter_by(name=item_name).one()
+
+
+    if request.method == 'POST':
+        if request.form['name']:
+            item.name = request.form['name']
+        if request.form['description']:
+            item.description = request.form['description']
+        if request.form['category']:
+            item.category_id = request.form['category']
+        session.add(item)
+        session.commit()
+        flash('Item successfully updated!')
+        return redirect(url_for('item_Details', item_name=item_name))
+    else:
+        categories = session.query(Category).all()
+        return render_template('edititem.html',
+                               item=item,
+                               categories=categories)
+
+
+
+    # if request.method == 'POST':
+    #     if request.form['name']:
+    #         item.name = request.form['name']
+    #     if request.form['category_name']:
+    #         item.category_name = request.form['category_name']
+    #     if request.form['description']:
+    #         item.description = request.form['description']
+    #     if request.form['category']:
+    #         category = session.query(Category).filter_by(name=request.form['category']).one()
+    #         item.category = category
+    #
+    #     session.add(item)
+    #     session.commit()
+    #     flash('Category Item Successfully Edited!')
+    #     return redirect(url_for('item_Details',
+    #                             category_name=item.category.name))
+    # else:
+    #     categories=session.query(Category).all()
+    #     return render_template('edititem.html',
+    #                            item=item,
+    #                            categories=categories)
+
 
 
 # route for deletling

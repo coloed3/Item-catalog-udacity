@@ -1,10 +1,10 @@
-{% if logged_in %}
+{% if 'username' in session %}
 <div class="section">
-    {% if currentCategory %}
-    <a href="{{ url_for('add_new_item', default_category=current_category) }}" class="button has-background-danger">Add Item</a>
-    {% else %}
+
+    <a href="{{ url_for('new_category') }}" class="button has-background-danger">Add Category</a>
+
     <a href="{{url_for('add_new_item')}}" class="button has-background-warning"> Add Item <i class="fas fa-plus"></i></a>
-    {% endif %}
+
 </div>
 {% endif %}
 <ul class="panel-blocks">

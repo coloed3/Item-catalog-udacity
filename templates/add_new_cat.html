@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="hero is-light is-bold ">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    Create New Category
+                </h1>
+            </div>
+        </div>
+    </section>
+<section>
+
+<div class="container">
+    <form name="new-categor" method="POST">
+        div class="field">
+  <label class="label"> Category Name</label>
+  <div class="control">
+    <input name="new-category-name" class="input" type="text" placeholder="Category Name">
+  </div>
+
+        <button type="submit" class="button is-success">Submit</button>
+
+        <a href="{{ url_for('index') }}">
+            <button type="button" class="button is-danger"> Cancel</button>
+        </a>
+    </form>
+
+</div>
+</section>
+{% endblock %}
