@@ -182,7 +182,7 @@ def gconnect():
     # see if user exists, if it doesn't make a new one
     user_id = getUserID(data["email"])
     if not user_id:
-        user_id = createUser(login_session)
+        user_id = create_user(login_session)
         login_session['user_id'] = user_id
     # will show welcome scren
     output = ''
@@ -261,7 +261,7 @@ def item_Details(category_name, item_name):
 
 
 
-
+#add items
 
 """Below will allow user to add item, after they login."""
 @app.route('/catalog/add-item', methods=['GET', 'POST'])
@@ -271,10 +271,10 @@ def add_new_item():
         return redirect('/login')
 
     if request.method == 'POST':
-        # user_id = login_session.get('user_id')
-        # category = request.form['category_name']
-        # item_name = request.form['name']
-        # item_description = request.form['description']
+        user_id = login_session.get('user_id')
+        category = request.form['category_name']
+        item_name = request.form['name']
+        item_description = request.form['description']
 
         #added the request.form to the dict vs seperating had issues with session
         # not saving
@@ -320,42 +320,20 @@ def new_category():
         return render_template('add_new_cat.html')
 
 
-
-
-
-
-#edit categories
-@app.route('/catalog/category/<string:category_name>/edit/',
-           methods=['GET', 'POST'])
-def edit_category(category_name):
-    """Edit a category."""
-
-    category = session.query(Category).filter_by(name=category_name).first()
-
-
-
-    if request.method == 'POST':
-        if request.form['name']:
-            category.name = request.form['name']
-            session.add(category)
-            session.commit()
-            flash('Category successfully updated!')
-            return redirect(url_for('item_Details',
-                                    category_name=category.name))
-    else:
-        return render_template('edit_cat.html', category=category)
-
-#edit a cat
-@app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])
-def edit_item(item_name):
-    logged_in =is_logged_in()
+@app.route("/catalog/item/<int:item_id>/edit/", methods=['GET', 'POST'])
+def edit_item(item_id):
+    """Edit existing item."""
 
     if 'username' not in login_session:
-        flash("Please Log in to Continue")
+        flash("Please log in to continue.")
+        return redirect(url_for('login'))
+
+
+
+    item = session.query(Item).filter_by(id=item_id).first()
+    if login_session['user_id'] != item.user_id:
+        flash("You were not authorised to access that page.")
         return redirect(url_for('index'))
-
-    item =session.query(Item).filter_by(name=item_name).one()
-
 
     if request.method == 'POST':
         if request.form['name']:
@@ -367,14 +345,40 @@ def edit_item(item_name):
         session.add(item)
         session.commit()
         flash('Item successfully updated!')
-        return redirect(url_for('item_Details', item_name=item_name))
+        return redirect(url_for('edit_item', item_id=item_id))
     else:
-        categories = session.query(Category).all()
-        return render_template('edititem.html',
-                               item=item,
-                               categories=categories)
+        categories = session.query(Category).\
+            filter_by(user_id=login_session['user_id']).all()
+        return render_template(
+            'edititem.html',
+            item=item,
+            categories=categories
+        )
 
 
+#
+# #edit categories
+# @app.route('/catalog/category/<string:category_name>/edit/',
+#            methods=['GET', 'POST'])
+# def edit_category(category_name):
+#     """Edit a category."""
+#
+#     category = session.query(Category).filter_by(name=category_name).first()
+#
+#     if 'username' not in login_session:
+#         flash("Please log in to continue.")
+#         return redirect(url_for('login'))
+#
+#
+#     if request.method == 'POST':
+#         if request.form['name']:
+#             category.name = request.form['name']
+#             session.add(category)
+#             session.commit()
+#             flash('Category successfully updated!')
+#             return redirect(url_for('item_Details',category_name=category.name))
+#     else:
+#         return render_template('edit_cat.html', category=category, category_name=category.name)
 
     # if request.method == 'POST':
     #     if request.form['name']:
@@ -403,8 +407,8 @@ def edit_item(item_name):
 # route for deletling
 
 
-@app.route('/catalog/<string:item_name>/delete', methods=['GET', 'POST'])
-def delete_item(item_name):
+@app.route('/catalog/<int:item_id>/delete', methods=['GET', 'POST'])
+def delete_item(item_id):
     return render_template('deleteitem.html')
 
 
@@ -413,10 +417,19 @@ code below taken from the restaurant application.
 ==========================================================================="""
 
 
-def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session[
-                   'email'], picture=login_session['picture'])
-    session.add(newUser)
+def create_user(login_session):
+    """Crate a new user.
+
+    Argument:
+    login_session (dict): The login session.
+    """
+
+    new_user = User(
+        name=login_session['username'],
+        email=login_session['email'],
+        picture=login_session['picture']
+    )
+    session.add(new_user)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id

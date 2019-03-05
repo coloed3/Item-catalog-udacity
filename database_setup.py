@@ -1,59 +1,71 @@
+#!/usr/bin/env python3
+# Module to set up database.
 from sqlalchemy import Column, ForeignKey, Integer, String
-from sqlalchemy import create_engine, event
-from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
 
 Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = 'user'
+    """Class to create the table 'user'."""
+
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(200), nullable=False)
-    picture = Column(String(250))
+    name = Column(String(250), nullable=False)
     email = Column(String(250), nullable=False)
+    picture = Column(String(250))
 
 
 class Category(Base):
-    __tablename__ = 'category'
-    """below will aloow the URLS to view a category by name not by the id given 
-    """
+    """Class to create the table 'category'."""
+
+    __tablename__ = "category"
+
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), unique=True, nullable=False)
+    name = Column(String(50), nullable=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
     @property
     def serialize(self):
-        """should return object in a serializable format
-        if found https://stackoverflow.com/questions/17066074/modelserializer-using-model-property
-        """
-        return{
+        """Return object data in easily serializeable format"""
+
+        return {
             'id': self.id,
-            'name': self.name
+            'name': self.name,
+            'user_id': self.user_id
         }
 
 
 class Item(Base):
-    __tablename__ = 'item'
+    """Class to create the table 'item'."""
+
+    __tablename__ = "item"
+
     id = Column(Integer, primary_key=True)
-    """below will aloow the URLS to view a category by name not by
-        the id given 
-    """
-    name = Column(String(250), unique=True, nullable=False)
+    name = Column(String(80), nullable=False)
     description = Column(String(250))
-    category_name = Column(Integer, ForeignKey('category.name'))
+    category_id = Column(Integer, ForeignKey('category.id'))
     category = relationship(Category)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
     @property
     def serialize(self):
+        """Return object data in easily serializeable format"""
+
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'category': self.category_name,
+            'user_id': self.user_id,
+            'category_id': self.category_id
         }
+
+
 
 
 engine = create_engine('sqlite:///catalogsdatabase.db')
@@ -63,11 +75,12 @@ http://www.sqlitetutorial.net/sqlite-foreign-key/
  """
 
 
-@event.listens_for(engine, "connect")
+
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
+
 
 
 Base.metadata.create_all(engine)
