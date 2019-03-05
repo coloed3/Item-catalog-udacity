@@ -297,15 +297,53 @@ def add_new_item():
 # add category
 @app.route('/catalog/add_category', methods=['GET', 'POST'])
 def new_category():
-    return render_template('index.html')
+    if 'username' not in login_session:
+        flash("Please log in to continue.")
+        return redirect(url_for('showLogin'))
+    elif request.method == 'POST':
+        if request.form['new-category-name'] == '':
+            flash('The field cannot be empty.')
+            return redirect(url_for('index'))
+
+        category = session.query(Category).filter_by(name=request.form['new-category-name']).first()
+        if category is not None:
+            flash('The entered category already exists.')
+            return redirect(url_for('new_category'))
+
+        new_category = Category(
+            name=request.form['new-category-name'])
+        session.add(new_category)
+        session.commit()
+        flash('New category %s successfully created!' % new_category.name)
+        return redirect(url_for('index'))
+    else:
+        return render_template('add_new_cat.html')
 
 
 
 
 
 
+#edit categories
+@app.route('/catalog/category/<string:category_name>/edit/',
+           methods=['GET', 'POST'])
+def edit_category(category_name):
+    """Edit a category."""
+
+    category = session.query(Category).filter_by(name=category_name).first()
 
 
+
+    if request.method == 'POST':
+        if request.form['name']:
+            category.name = request.form['name']
+            session.add(category)
+            session.commit()
+            flash('Category successfully updated!')
+            return redirect(url_for('item_Details',
+                                    category_name=category.name))
+    else:
+        return render_template('edit_cat.html', category=category)
 
 #edit a cat
 @app.route('/catalog/<string:item_name>/edit', methods=['GET', 'POST'])

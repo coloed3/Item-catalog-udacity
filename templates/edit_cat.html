@@ -1,31 +1,29 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <section class="hero is-light is-bold ">
+    section class="hero is-light is-bold ">
         <div class="hero-body">
             <div class="container">
                 <h1 class="title">
-                    Create New Category
+                    Edit {{ category.name }}
                 </h1>
             </div>
         </div>
     </section>
 <section>
+    <form action="{{url_for('edit_category') category_name = category.name}}" method="POST">
 
-<div class="container">
-    <form name="new-category" method="POST">
-       <div class="field">
+<div class="field">
   <label class="label"> Category Name</label>
   <div class="control">
-    <input name="new-category-name" class="input" type="text" placeholder="Category Name">
+    <input name="name" class="input" type="text" placeholder="Category Name">
   </div>
 
-        <button type="submit" class="button is-success">Submit</button>
+    <button type="submit" class="button is-success">Submit</button>
 
         <a href="{{ url_for('index') }}" class="button is-danger">
            Cancel</a>
     </form>
 
-</div>
 </section>
 {% endblock %}
