@@ -18,7 +18,7 @@
     <div class="section">
         <div class="container">
             {#        will only show if user is logged in #}
-            {% if logged_in and user_id == user_id %}
+            {% if 'username' in session %}
                 <form method="POST">
                     <div class="field">
                         <div class="control">
@@ -27,7 +27,7 @@
                                 <select name="category_name" id="category-selector">
                                     {#                        below will loop through each cateogry#}
                                     {% for category in categories %}
-                                        <option value="{{ category.name }}">{{ category.name }}</option>
+                                        <option value="{{ category.id }}">{{ category.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>

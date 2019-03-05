@@ -8,9 +8,9 @@
     </label>
     <input type="checkbox" id="menu-toggle" class="is-hidden" />
     <div class="nav-right nav-menu">
-        {% for category in categories %}
-        <a class="nav-item is-tab is-hidden-tablet" href="{{ url_for('categoryItems', category_name=category.name)}}">
-            {{ category.name }}
+        {% for  item in items %}
+        <a class="nav-item is-tab is-hidden-tablet" href="{{ url_for('categoryItems', item_id=item.id)}}">
+            {{ item.name }}
         </a>
         {% endfor %}
     </div>
@@ -22,9 +22,9 @@
         <h5 class="has-text-black">Categories</h5>
 
         <ul class="menu-list">
-            {% for category in categories %}
+            {% for category  in categories %}
             <li>
-                <a href="{{ url_for('categoryItems', category_name=category.name)}}">
+                <a href="{{ url_for('categoryItems', category_id=category.id)}}">
                     {{ category.name }}
                 </a>
             </li>

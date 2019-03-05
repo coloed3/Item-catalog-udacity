@@ -43,7 +43,7 @@ engine = create_engine('sqlite:///catalogsdatabase.db')
 @app.route('/index')
 @app.route('/index.json', endpoint="index-json")
 def index():
-    logged_in = is_logged_in()
+
 
     items = session.query(Item).order_by(Item.id.desc()).all()
 
@@ -55,31 +55,27 @@ def index():
     return render_template('index.html',
                            categories=categories,
                            items=items,
-                           logged_in=logged_in,
                            section_title="Latest Items",
                            )
 
-
-@app.route('/catalog/<string:category_name>')
-@app.route('/catalog/<string:category_name>.json',
-           endpoint="category-json")
-def categoryItems(category_name):
-    items = session.query(Item).filter_by(category_name=category_name).all()
+@app.route('/')
+@app.route('/catalog/<int:item_id>')
+def categoryItems(item_id):
+    items = session.query(Item).filter_by(item_id=item_id).all()
 
     if request.path.endswith('.json'):
         return jsonify(json_list=[i.serialize for i in items])
 
-    categories = session.query(Category).all()
 
-    logged_in = is_logged_in()
-    return render_template('index.html',
-                           categories=categories,
-                           current_category=category_name,
-                           items=items,
-                           logged_in=logged_in,
-                           section_title="%s Items (%d items)" % (
-                               category_name, len(items)),
-                           )
+    category = session.query(Category) \
+        .filter_by(id=item.category_id).first()
+
+    return render_template(
+        "viewitem.html",
+        items=items,
+        category=category,
+
+    )
 
 # route for login
 # below code taken from restaurant app and modified for this project.
@@ -244,54 +240,56 @@ def log_out():
 
 """Below will allow user to view items name and description. in both the route and
 json"""
-@app.route('/catalog/<string:category_name>/<string:item_name>')
-@app.route('/catalog/<string:category_name>/<string:item_name>.json',
-           endpoint="item-json")
-def item_Details(category_name, item_name):
-    item = session.query(Item).filter_by(name=item_name).one()
+@app.route('/catalog/item/<int:item_id>/')
+def item_Details(item_id):
+    item = session.query(Item).filter_by(id=item_id).first()
+    category = session.query(Category) \
+        .filter_by(id=item.category_id).first()
 
-    if request.path.endswith('.json'):
-        return jsonify(item.serialize)
-    logged_in = is_logged_in()
-    user_id = login_session.get('user_id')
-
-    return render_template('viewitem.html', item=item,
-                           user_id=user_id,
-                           logged_in=logged_in)
+    return render_template(
+        'viewitem.html',
+        category=category,
+        item=item,
+        )
 
 
 
 #add items
 
 """Below will allow user to add item, after they login."""
-@app.route('/catalog/add-item', methods=['GET', 'POST'])
-def add_new_item():
-    logged_in = is_logged_in()
+@app.route('/item/add-item', methods=['GET', 'POST'])
+def add_item():
+    "adding validation to adding new items"
     if 'username' not in login_session:
-        return redirect('/login')
+        flash("Please log in to continue.")
+        return redirect(url_for('login'))
 
-    if request.method == 'POST':
-        user_id = login_session.get('user_id')
-        category = request.form['category_name']
-        item_name = request.form['name']
-        item_description = request.form['description']
 
-        #added the request.form to the dict vs seperating had issues with session
-        # not saving
-        item = Item(name=request.form['name'],
-                    description=request.form['description'],
-                    user_id=login_session.get('user_id'),
-                    category_name=request.form['category_name'])
-        session.add(item)
+    elif request.method == 'POST':
+        # Check if the item already exists in the database.
+        # If it does, display an error.
+        item = session.query(Item).filter_by(name=request.form['name']).first()
+        if item:
+            if item.name == request.form['name']:
+                flash('The item already exists in the database!')
+                return redirect(url_for("add_item"))
+        new_item = Item(
+            name=request.form['name'],
+            category_id=request.form['category_name'],
+            description=request.form['description'],
+        )
+        session.add(new_item)
         session.commit()
-        flash('New item added')
-        return redirect(url_for('item_Details', category_name=item.category_name,
-                                item_name=item.name))
+        flash('New item successfully created!')
+        return redirect(url_for('index'))
     else:
-        categories = session.query(Category).all()
-        return render_template('additem.html',
-                               categories=categories,
-                               logged_in=logged_in)
+        items = session.query(Item)
+        categories = session.query(Category)
+        return render_template(
+            'additem.html',
+            items=items,
+            categories=categories
+        )
 
 
 # add category
@@ -323,17 +321,10 @@ def new_category():
 @app.route("/catalog/item/<int:item_id>/edit/", methods=['GET', 'POST'])
 def edit_item(item_id):
     """Edit existing item."""
-
-    if 'username' not in login_session:
-        flash("Please log in to continue.")
-        return redirect(url_for('login'))
-
-
-
     item = session.query(Item).filter_by(id=item_id).first()
-    if login_session['user_id'] != item.user_id:
-        flash("You were not authorised to access that page.")
-        return redirect(url_for('index'))
+
+   
+
 
     if request.method == 'POST':
         if request.form['name']:
@@ -345,10 +336,9 @@ def edit_item(item_id):
         session.add(item)
         session.commit()
         flash('Item successfully updated!')
-        return redirect(url_for('edit_item', item_id=item_id))
+        return redirect(url_for('item_Details', item_id=item_id))
     else:
-        categories = session.query(Category).\
-            filter_by(user_id=login_session['user_id']).all()
+        categories = session.query(Category)
         return render_template(
             'edititem.html',
             item=item,

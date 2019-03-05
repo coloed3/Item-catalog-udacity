@@ -23,13 +23,13 @@
                         {% endfor %}
                       </select>
                     </div>
-                    <div class="form">
+                    <div class="form-group">
                       <label for="exampleFormControlTextarea1">Description</label>
                       <textarea name="description" class="form-control" id="exampleFormControlTextarea1" rows="5" required>{{item.description}}</textarea>
                     </div>
 
-                    <button type="submit" class="button is-primary"><i class="fas fa-save text-and-icon"></i>Update</button>
-                    <a href="{{ url_for('index') }}"><button type="button" class="button is danger"><i class="fas fa-times text-and-icon"></i>Cancel</button></a>
+                    <button type="submit" class="button is-success"><i class="fas fa-save text-and-icon"></i>Update</button>
+                    <a href="{{ url_for('index') }}"><button type="button" class="button is-dangerr"><i class="fas fa-times text-and-icon"></i>Cancel</button></a>
                   </form>
 
             </div>
