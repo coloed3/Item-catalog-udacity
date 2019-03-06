@@ -90,9 +90,11 @@ def showLogin():
     else:
         return render_template('loginin.html')
 
-# google+ oauth login route
 
 
+"""below taken from the course resturant application it does the following
+allow user to be authicated by google, we save the token in session and use that 
+to authorize user to make changes."""
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -233,6 +235,7 @@ def log_out():
 
 
 """moving json to the bottom of the project, had to revamp to fit new database"""
+"""route below allows user to add item_detail to viewitem.html"""
 @app.route('/catalog/item/<int:item_id>/')
 def item_Details(item_id):
     item = session.query(Item).filter_by(id=item_id).first()
@@ -252,7 +255,7 @@ def item_Details(item_id):
 """Below will allow user to add item, after they login."""
 @app.route('/item/add-item', methods=['GET', 'POST'])
 def add_item():
-    "adding validation to adding new items"
+    # "adding validation to adding new items"
     if 'username' not in login_session:
         flash("Please log in to continue.")
         return redirect(url_for('login'))
@@ -285,7 +288,8 @@ def add_item():
         )
 
 
-# add category
+""" below will allow the user to add a category to the
+data base with authenicating if the category exist"""
 @app.route('/catalog/add_category', methods=['GET', 'POST'])
 def new_category():
     if 'username' not in login_session:
@@ -311,6 +315,11 @@ def new_category():
         return render_template('add_new_cat.html')
 
 
+
+"""
+Route below allows the user to select there desired category item (if they are logged in)
+and will allow the name, description, cateogry type to be edited. 
+"""
 @app.route("/catalog/item/<int:item_id>/edit/", methods=['GET', 'POST'])
 def edit_item(item_id):
     """Edit existing item."""
@@ -339,8 +348,10 @@ def edit_item(item_id):
         )
 
 
-#
-#edit categories
+"""
+Below route allows user if logged in to edit there category name. on the  edit_cat there
+is authnication that the user will need to be logged in session to make changes. 
+"""
 @app.route('/catalog/category/<int:category_id>/edit/',
            methods=['GET', 'POST'])
 def edit_category(category_id):
@@ -428,14 +439,11 @@ def getUserID(email):
 
 # ====== took this from our crud course for creating function for actions we need to preform
 
-
 def is_logged_in():
     access_token = login_session.get('access_token')
     return access_token is not None
 
 # ===== Function used for login in encryption
-
-
 def getToken():
     return ''.join(random.choice(string.ascii_uppercase + string.digits)
                    for x in xrange(32))
