@@ -232,9 +232,7 @@ def log_out():
         return redirect(url_for('index'))
 
 
-
-"""Below will allow user to view items name and description. in both the route and
-json"""
+"""moving json to the bottom of the project, had to revamp to fit new database"""
 @app.route('/catalog/item/<int:item_id>/')
 def item_Details(item_id):
     item = session.query(Item).filter_by(id=item_id).first()
@@ -342,28 +340,24 @@ def edit_item(item_id):
 
 
 #
-# #edit categories
-# @app.route('/catalog/category/<string:category_name>/edit/',
-#            methods=['GET', 'POST'])
-# def edit_category(category_name):
-#     """Edit a category."""
-#
-#     category = session.query(Category).filter_by(name=category_name).first()
-#
-#     if 'username' not in login_session:
-#         flash("Please log in to continue.")
-#         return redirect(url_for('login'))
-#
-#
-#     if request.method == 'POST':
-#         if request.form['name']:
-#             category.name = request.form['name']
-#             session.add(category)
-#             session.commit()
-#             flash('Category successfully updated!')
-#             return redirect(url_for('item_Details',category_name=category.name))
-#     else:
-#         return render_template('edit_cat.html', category=category, category_name=category.name)
+#edit categories
+@app.route('/catalog/category/<int:category_id>/edit/',
+           methods=['GET', 'POST'])
+def edit_category(category_id):
+    """Edit a category."""
+
+    category = session.query(Category).filter_by(id=category_id).first()
+
+
+    if request.method == 'POST':
+        if request.form['name']:
+            category.name = request.form['name']
+            session.add(category)
+            session.commit()
+            flash('Category successfully updated!')
+            return redirect(url_for('categoryItems',category_id=category.id))
+    else:
+        return render_template('edit_cat.html', category=category)
 
     # if request.method == 'POST':
     #     if request.form['name']:

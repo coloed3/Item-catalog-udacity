@@ -6,30 +6,30 @@
 
 {% block content %}
     <div class="container">
-        <div class="row" style="margin-top: 35px;">
-            <div class="col-md-7">
-               <h1>Update Item {{ item.name }}</h1>
+        <div class="columns" style="margin-top: 35px;">
+            <div class="column">
+               <h1 class="title has-text-black">Update Item {{ item.name }}</h1>
 
                <form method="POST">
-                    <div class="form-group">
-                      <label for="exampleFormControlInput1">Title</label>
-                      <input name="name" type="text" class="form-control" value="{{ item.name }}" required>
+                    <div class="control">
+                      <label class="label">Title</label>
+                      <input name="name" type="text" class="input" value="{{ item.name }}" required>
                     </div>
                     <div class="form-group">
-                      <label for="exampleFormControlSelect1">Category</label>
-                      <select name="category" class="form-control" id="exampleFormControlSelect1" required>
+                      <label for="label">Category</label>
+                      <select name="category" class="select"  required>
                         {% for category in categories %}
                           <option value="{{ category.id }}" {% if item.category_id == category.id %} selected {% endif %}>{{ category.name }}</option>
                         {% endfor %}
                       </select>
                     </div>
-                    <div class="form-group">
-                      <label for="exampleFormControlTextarea1">Description</label>
-                      <textarea name="description" class="form-control" id="exampleFormControlTextarea1" rows="5" required>{{item.description}}</textarea>
+                    <div class="control">
+                      <label  class="label">Description</label>
+                      <textarea name="description" class="textarea"  rows="5" required>{{item.description}}</textarea>
                     </div>
 
                     <button type="submit" class="button is-success"><i class="fas fa-save text-and-icon"></i>Update</button>
-                    <a href="{{ url_for('index') }}"><button type="button" class="button is-dangerr"><i class="fas fa-times text-and-icon"></i>Cancel</button></a>
+                    <a href="{{ url_for('index') }}"><button type="button" class="button is-danger"><i class="fas fa-arrow-circle-left"></i>Cancel</button></a>
                   </form>
 
             </div>
