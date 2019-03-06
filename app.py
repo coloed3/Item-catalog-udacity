@@ -396,10 +396,40 @@ def edit_category(category_id):
 
 # route for deletling
 
-
+"""
+Route below will be used for both the delete item and category
+just switching the item_id to category_id. 
+"""
 @app.route('/catalog/<int:item_id>/delete', methods=['GET', 'POST'])
 def delete_item(item_id):
-    return render_template('deleteitem.html')
+    """Authenication"""
+    if 'username' not in login_session:
+        flash('In order to delete any items please login')
+        return redirect(url_for('showLogin'))
+    item = session.query(Item).filter_by(id=item_id).first()
+
+    if request.method=='POST':
+        session.delete(item)
+        session.commit()
+        flash('Item was delete successfully')
+        return redirect(url_for('index'))
+    else:
+        return render_template('deleteitem.html', item=item)
+
+"""Route will delete category """
+@app.route('/catalog/category/<int:category_id>/delete', methods=['GET', 'POST'])
+def delete_category(category_id):
+    """below will delete categories by id in the data base"""
+    category = session.query(Category).filter_by(id=category_id).first()
+
+
+    if request.method == 'POST':
+        session.delete(category)
+        session.commit()
+        flash("Category successfully deleted!")
+        return redirect(url_for('index'))
+    else:
+        return render_template("deletecat.html", category=category)
 
 
 """=========================================================================
