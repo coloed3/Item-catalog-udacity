@@ -1,8 +1,8 @@
-# Udactiy 4th project Item project catalog
+## Udactiy 4th project Item project catalog
 This is a project required to graduate from Udacity with a nano degree.
 
 
-# brief description of the project
+## brief description of the project
  The Item catalog application, allows the user to create catagories and list for those categories with
  a brief description. When the user logs in using google oauth(google account). The application allows
  the user to do crud operations. Cread Read Up Delete
@@ -28,7 +28,7 @@ Vagrant config files.
 the above allows for vagrant to grab the premade vagrant file and install the linux distro and all the packeges needed
 for the project to run.
 
-#NOTE:
+##NOTE:
     -this process does take some time please refer to the repo [here](https://github.com/udacity/fullstack-nanodegree-vm)
     for more information regarding the set up.
 
@@ -42,13 +42,12 @@ for the project to run.
     sudo python3 -m pip install --upgrade flask
     ```
 5. Once upgraded and your cd'd into the catalog folder type
-        ```bash
-          python database_setup.py
-          ```
+         ```bash
+    python3 database_setup.py
+    ```
    this will create you sqlite data base , when completed  run the following command
    ```bash
     python app.py
    ```
    this will run the application on http://0.0.0.0:8000, in order for Google oAuth to work use 'http://localhost:8000/'
 
- 
