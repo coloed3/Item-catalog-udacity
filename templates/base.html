@@ -27,7 +27,7 @@
         </div>
         <div id="navMenu" class="navbar-menu">
             <div class="navbar-end">
-                {% if logged_in %}
+                {% if 'username' in session %}
                 <div class="navbar-item">
                     <div class="buttons">
                         <a class="button is-light has-text-weight-bold" href="{{ url_for('gdisconnect') }}">

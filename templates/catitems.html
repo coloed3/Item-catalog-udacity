@@ -1,0 +1,37 @@
+
+{% extends 'base.html' %}
+{% block content %}
+        <div class="section">
+            <div class="hero">
+                <div class="hero-body is-primary is-bold">
+                    <div class="title">
+                        {{ category.name }}
+                    </div>
+                    
+                    {% if 'username' in session %}
+                            <div class="container">
+                            <div class="columns">
+                                <div class="column">
+{#                                    <a href="{{ url_for('edit_category', category_id=category.id }}" class="button is-info"><i class="fas fa-edit">edit</i></a>#}
+{#                                    <a href="{{ url_for('delete_category', category_id=category.id }}" class="button is-danger"><i class="fas fa-trash">Delete</i></a>#}
+                                </div>
+                            </div>
+                            </div>
+                    {% endif %}
+                </div>
+            
+            <div class="column">
+                    <h2 class="subtitle">Items below are part of this category</h2>
+            <div class="card">
+
+         <div class="card-content">
+                    {% for item in items %}
+                    <li class="list-item"> <a class="has-text-weight-bold has-text-centered has-text-info" href="{{ url_for('item_Details', item_id=item.id) }}">{{ item.name }}</a></li>
+                    {% endfor %}
+                </ul>
+         </div>
+            </div>
+            </div>
+            </div>
+        </div>
+{% endblock %}

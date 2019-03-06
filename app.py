@@ -58,24 +58,19 @@ def index():
                            section_title="Latest Items",
                            )
 
-@app.route('/')
-@app.route('/catalog/<int:item_id>')
-def categoryItems(item_id):
-    items = session.query(Item).filter_by(item_id=item_id).all()
 
-    if request.path.endswith('.json'):
-        return jsonify(json_list=[i.serialize for i in items])
+@app.route('/catalog/category/<int:category_id>/items')
+def categoryItems(category_id):
 
 
-    category = session.query(Category) \
-        .filter_by(id=item.category_id).first()
+    category = session.query(Category).filter_by(id=category_id).first()
+    items = session.query(Item).filter_by(category_id=category.id).all()
 
     return render_template(
-        "viewitem.html",
-        items=items,
+        'catitems.html',
         category=category,
+        items=items)
 
-    )
 
 # route for login
 # below code taken from restaurant app and modified for this project.
