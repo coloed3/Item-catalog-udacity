@@ -60,11 +60,18 @@ def index():
 
 
 @app.route('/catalog/category/<int:category_id>/items')
+@app.route('/catalog/category/<int:category_id>/items.json',
+           endpoint="category-json")
 def categoryItems(category_id):
-
-
     category = session.query(Category).filter_by(id=category_id).first()
     items = session.query(Item).filter_by(category_id=category.id).all()
+
+    """Below will allow for user to view the .json endpoint"""
+    if request.path.endswith('.json'):
+        return jsonify(json_list=[i.serialize for i in items])
+
+
+
 
     return render_template(
         'catitems.html',
@@ -237,10 +244,15 @@ def log_out():
 """moving json to the bottom of the project, had to revamp to fit new database"""
 """route below allows user to add item_detail to viewitem.html"""
 @app.route('/catalog/item/<int:item_id>/')
+@app.route('/catalog/item/<int:item_id>/.json',
+           endpoint="item-json")
 def item_Details(item_id):
+
     item = session.query(Item).filter_by(id=item_id).first()
     category = session.query(Category) \
         .filter_by(id=item.category_id).first()
+    if request.path.endswith('.json'):
+        return jsonify(item.serialize)
 
     return render_template(
         'viewitem.html',
@@ -478,6 +490,11 @@ def getToken():
     return ''.join(random.choice(string.ascii_uppercase + string.digits)
                    for x in xrange(32))
 
+
+
+"""=======================================
+  Json End points 
+========================================="""
 
 if __name__ == "__main__":
     """stackoverflow.com/questions/26080872/secret-key-not-set-in-flask-session-using-the-flask-session-extension,
