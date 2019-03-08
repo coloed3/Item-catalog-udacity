@@ -37,7 +37,7 @@
                 </div>
                 <div class="card-content">
                     <div class="content">
-                        {% if 'username' in session %}
+                     {%if logged_in  %}
 <div class="section">
 
     <a href="{{url_for('add_item')}}" class="button has-background-warning"> Add Item <i class="fas fa-plus"></i></a>

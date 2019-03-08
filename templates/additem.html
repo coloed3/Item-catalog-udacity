@@ -18,7 +18,7 @@
     <div class="section">
         <div class="container">
             {#        will only show if user is logged in #}
-            {% if 'username' in session %}
+            {% if logged_in %}
                 <form method="POST">
                     <div class="field">
                         <div class="control">

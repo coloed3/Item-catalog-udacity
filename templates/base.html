@@ -30,7 +30,7 @@ if user is in session it will aloow for use to logout
         </div>
         <div id="navMenu" class="navbar-menu">
             <div class="navbar-end">
-                {% if 'username' in session %}
+                {% if logged_in %}
                 <div class="navbar-item">
                     <div class="buttons">
                         <a class="button is-light has-text-weight-bold" href="{{ url_for('gdisconnect') }}">

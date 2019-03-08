@@ -1,5 +1,11 @@
 # usr/bin/python3.71
-from flask import Flask, request, render_template, redirect, flash, make_response,jsonify, url_for
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   jsonify,
+                   url_for,
+                   flash)
 from flask import session as login_session
 from sqlalchemy import create_engine
 import random
@@ -43,7 +49,7 @@ engine = create_engine('sqlite:///catalogsdatabase.db')
 @app.route('/index')
 @app.route('/index.json', endpoint="index-json")
 def index():
-
+    logged_in = is_logged_in()
 
     items = session.query(Item).order_by(Item.id.desc()).all()
 
@@ -54,28 +60,22 @@ def index():
 
     return render_template('index.html',
                            categories=categories,
+                           logged_in=logged_in,
                            items=items,
                            section_title="Latest Items",
                            )
 
 
 @app.route('/catalog/category/<int:category_id>/items')
-@app.route('/catalog/category/<int:category_id>/items.json',
-           endpoint="category-json")
 def categoryItems(category_id):
+
     category = session.query(Category).filter_by(id=category_id).first()
     items = session.query(Item).filter_by(category_id=category.id).all()
-
-    """Below will allow for user to view the .json endpoint"""
-    if request.path.endswith('.json'):
-        return jsonify(json_list=[i.serialize for i in items])
-
-
-
-
+    logged_in = is_logged_in()
     return render_template(
         'catitems.html',
         category=category,
+        logged_in=logged_in,
         items=items)
 
 
@@ -166,6 +166,7 @@ def gconnect():
     login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
+
     # Get user info
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
@@ -178,6 +179,7 @@ def gconnect():
     login_session['email'] = data['email']
     # ADD PROVIDER TO LOGIN SESSION
     login_session['provider'] = 'google'
+    login_session['username'] = data.get('name', '')
 
     # see if user exists, if it doesn't make a new one
     user_id = getUserID(data["email"])
@@ -226,38 +228,38 @@ def gdisconnect():
 # logout current user and del sessions
 @app.route('/logout')
 def log_out():
-    """will logout current user"""
-    if 'username' in login_session:
+    if login_session['provider'] == 'google':
         gdisconnect()
         del login_session['gplus_id']
-        del login_session['access_token']
-        del login_session['email']
-        del login_session['picture']
-        del login_session['user_id']
-        flash("You have been successfully logged out")
-        return redirect(url_for('index'))
-    else:
-        flash('User was never logged in')
-        return redirect(url_for('index'))
+    del login_session['access_token']
+    del login_session['username']
+    del login_session['email']
+    del login_session['picture']
+    del login_session['user_id']
+
+
+    del login_session['provider']
+    return  redirect(url_for('index'))
+
 
 
 """moving json to the bottom of the project, had to revamp to fit new database"""
 """route below allows user to add item_detail to viewitem.html"""
 @app.route('/catalog/item/<int:item_id>/')
-@app.route('/catalog/item/<int:item_id>/.json',
-           endpoint="item-json")
 def item_Details(item_id):
 
     item = session.query(Item).filter_by(id=item_id).first()
     category = session.query(Category) \
         .filter_by(id=item.category_id).first()
-    if request.path.endswith('.json'):
-        return jsonify(item.serialize)
+
+    logged_in = is_logged_in()
+    user_id = login_session.get('user_id')
 
     return render_template(
         'viewitem.html',
         category=category,
         item=item,
+        logged_in=logged_in
         )
 
 
@@ -265,17 +267,28 @@ def item_Details(item_id):
 #add items
 
 """Below will allow user to add item, after they login."""
-@app.route('/item/add-item', methods=['GET', 'POST'])
+@app.route('/item/add-item/', methods=['GET', 'POST'])
 def add_item():
+
+
+    """authenication for user to be in session"""
+    logged_in = is_logged_in()
+    user_id = login_session.get('user_id')
+
+
     # "adding validation to adding new items"
-    if 'username' not in login_session:
-        flash("Please log in to continue.")
-        return redirect(url_for('login'))
+    if user_id is None:
+        return render_template('error.html',
+                               error='Invalid user',
+                               logged_in=logged_in)
+
+
+        # Check if the item already exists in the database.
+        # If it does, display an error
 
 
     elif request.method == 'POST':
-        # Check if the item already exists in the database.
-        # If it does, display an error.
+
         item = session.query(Item).filter_by(name=request.form['name']).first()
         if item:
             if item.name == request.form['name']:
@@ -287,17 +300,17 @@ def add_item():
             description=request.form['description'],
         )
         session.add(new_item)
+        session.add(new_item)
         session.commit()
         flash('New item successfully created!')
         return redirect(url_for('index'))
     else:
-        items = session.query(Item)
-        categories = session.query(Category)
+        items = session.query(Item).all()
+        categories = session.query(Category).all()
         return render_template(
             'additem.html',
             items=items,
-            categories=categories
-        )
+            categories=categories, logged_in=logged_in)
 
 
 """ below will allow the user to add a category to the
@@ -334,10 +347,13 @@ and will allow the name, description, cateogry type to be edited.
 """
 @app.route("/catalog/item/<int:item_id>/edit/", methods=['GET', 'POST'])
 def edit_item(item_id):
+    logged_in =is_logged_in()
+
     """Edit existing item."""
     item = session.query(Item).filter_by(id=item_id).first()
-
-   
+    user_id = login_session.get('user_id')
+    if user_id is None or user_id !=item.user_id:
+        return render_template('error.html', error="invalid user", logged_in=logged_in)
 
 
     if request.method == 'POST':
@@ -368,9 +384,16 @@ is authnication that the user will need to be logged in session to make changes.
            methods=['GET', 'POST'])
 def edit_category(category_id):
     """Edit a category."""
+    logged_in=is_logged_in()
 
     category = session.query(Category).filter_by(id=category_id).first()
+    user_id = login_session.get('user_id')
 
+    if user_id is None or user_id != category.user_id:
+        # ensure only authorized users are allowed
+        return render_template('error.html',
+                               error='Invalid user',
+                               logged_in=logged_in)
 
     if request.method == 'POST':
         if request.form['name']:
@@ -414,11 +437,19 @@ just switching the item_id to category_id.
 """
 @app.route('/catalog/<int:item_id>/delete', methods=['GET', 'POST'])
 def delete_item(item_id):
+    logged_in = is_logged_in()
     """Authenication"""
     if 'username' not in login_session:
         flash('In order to delete any items please login')
         return redirect(url_for('showLogin'))
     item = session.query(Item).filter_by(id=item_id).first()
+    """authorizing user that is in session to login"""
+    user_id = login_session.get('user_id')
+    if user_id is None or user_id != item.user_id:
+        # ensure only authorized users are allowed
+        return render_template('error.html',
+                               error='Invalid user',
+                               logged_in=logged_in)
 
     if request.method=='POST':
         session.delete(item)
@@ -495,11 +526,45 @@ def getToken():
 """=======================================
   Json End points 
 ========================================="""
+# JSON Endpoints
 
+# Return JSON of all the items in the catalog.
+@app.route('/api/v1/catalog.json')
+def show_catalog_json():
+    """Return JSON of all the items in the catalog."""
+
+    items = session.query(Item).order_by(Item.id.desc())
+    return jsonify(catalog=[i.serialize for i in items])
+
+
+# Return JSON of a particular item in the catalog.
+@app.route(
+    '/api/v1/categories/<int:category_id>/item/<int:item_id>/JSON')
+def catalog_item_json(category_id, item_id):
+    """Return JSON of a particular item in the catalog."""
+
+
+    item = session.query(Item).filter_by(id=item_id, category_id=category_id).first()
+    if item is not None:
+            return jsonify(item=item.serialize)
+    else:
+            return jsonify(
+                error='item {} does not belong to category {}.'
+                .format(item_id, category_id))
+
+
+
+# Return JSON of all the categories in the catalog.
+@app.route('/api/v1/categories/JSON')
+def categories_json():
+    """Returns JSON of all the categories in the catalog."""
+
+    categories = session.query(Category).all()
+    return jsonify(categories=[i.serialize for i in categories])
 if __name__ == "__main__":
     """stackoverflow.com/questions/26080872/secret-key-not-set-in-flask-session-using-the-flask-session-extension,
     had issues with errors when attempting to login in to session"""
     app.secret_key = 'super_secret_key'
     load_json_secrets()
     app.debug = True
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=5000)
