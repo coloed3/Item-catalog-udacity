@@ -19,10 +19,11 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import AccessTokenCredentials
 
-#required_login decrorator
+# required_login decrorator
 
 # from database_setup need to finish set up of db
 from database_setup import Base, User, Category, Item, engine
+
 # will call json file using global function for our file from google chrome
 client_secrets = {}
 # function below is used to open the file
@@ -34,14 +35,11 @@ def load_json_secrets():
     client_secrets = json.load(open('client_secrets.json'))['web']
 
 
-"""=========================================================================="""
-
 app = Flask(__name__)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 engine = create_engine('sqlite:///catalogsdatabase.db')
-
 """Below will be the bases of the latest items"""
 
 
@@ -55,9 +53,7 @@ def index():
 
     if request.path.endswith('.json'):
         return jsonify(json_list=[i.serialize for i in items])
-
     categories = session.query(Category).all()
-
     return render_template('index.html',
                            categories=categories,
                            logged_in=logged_in,
@@ -68,7 +64,6 @@ def index():
 
 @app.route('/catalog/category/<int:category_id>/items')
 def categoryItems(category_id):
-
     category = session.query(Category).filter_by(id=category_id).first()
     items = session.query(Item).filter_by(category_id=category.id).all()
     logged_in = is_logged_in()
@@ -82,26 +77,23 @@ def categoryItems(category_id):
 # route for login
 # below code taken from restaurant app and modified for this project.
 # get_token() is a function that will allow for us to "encrypt" the string
-
-
 @app.route('/login')
 def showLogin():
     access_token = login_session.get('access_token')
-
     if access_token is None:
         state = getToken()
         login_session['state'] = state
-
-        return render_template('login.html', STATE=state,
-                               CLIENT_ID=client_secrets['client_id'])
+        return render_template \
+            ('login.html', STATE=state, CLIENT_ID=client_secrets['client_id'])
     else:
         return render_template('loginin.html')
 
 
-
 """below taken from the course resturant application it does the following
-allow user to be authicated by google, we save the token in session and use that 
-to authorize user to make changes."""
+allow user to be authicated by google,wesave the token in """
+"""session and use that to authorize user to make changes."""
+
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -166,7 +158,6 @@ def gconnect():
     login_session['access_token'] = credentials.access_token
     login_session['gplus_id'] = gplus_id
 
-
     # Get user info
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
@@ -203,6 +194,8 @@ def gconnect():
 
 """ using information and code from restaurant project. to disconnect and close
 sessions"""
+
+
 @app.route('/gdisconnect')
 def gdisconnect():
     # Only disconnect a connected user.
@@ -222,10 +215,12 @@ def gdisconnect():
         # For whatever reason, the given token was invalid.
         login_session.clear()
         return redirect(render_template('index.html'))
-
     return render_template('logout.html')
 
+
 # logout current user and del sessions
+
+
 @app.route('/logout')
 def log_out():
     if login_session['provider'] == 'google':
@@ -236,59 +231,46 @@ def log_out():
     del login_session['email']
     del login_session['picture']
     del login_session['user_id']
-
-
     del login_session['provider']
-    return  redirect(url_for('index'))
+    return redirect(url_for('index'))
 
 
+"""moving json to the bottom of the project, """
+"""had to revamp to fit new database"""
 
-"""moving json to the bottom of the project, had to revamp to fit new database"""
-"""route below allows user to add item_detail to viewitem.html"""
+
 @app.route('/catalog/item/<int:item_id>/')
 def item_Details(item_id):
-
     item = session.query(Item).filter_by(id=item_id).first()
     category = session.query(Category) \
         .filter_by(id=item.category_id).first()
-
     logged_in = is_logged_in()
     user_id = login_session.get('user_id')
-
     return render_template(
         'viewitem.html',
         category=category,
         item=item,
         logged_in=logged_in
-        )
+    )
 
-
-
-#add items
 
 """Below will allow user to add item, after they login."""
+
+
 @app.route('/item/add-item/', methods=['GET', 'POST'])
 def add_item():
-
-
     """authenication for user to be in session"""
     logged_in = is_logged_in()
     user_id = login_session.get('user_id')
 
-
     # "adding validation to adding new items"
     if user_id is None:
-        return render_template('error.html',
+        return render_template('404.html',
                                error='Invalid user',
                                logged_in=logged_in)
-
-
         # Check if the item already exists in the database.
         # If it does, display an error
-
-
     elif request.method == 'POST':
-
         item = session.query(Item).filter_by(name=request.form['name']).first()
         if item:
             if item.name == request.form['name']:
@@ -315,6 +297,8 @@ def add_item():
 
 """ below will allow the user to add a category to the
 data base with authenicating if the category exist"""
+
+
 @app.route('/catalog/add_category', methods=['GET', 'POST'])
 def new_category():
     if 'username' not in login_session:
@@ -325,7 +309,8 @@ def new_category():
             flash('The field cannot be empty.')
             return redirect(url_for('index'))
 
-        category = session.query(Category).filter_by(name=request.form['new-category-name']).first()
+        category = session.query(Category).filter_by \
+            (name=request.form['new-category-name']).first()
         if category is not None:
             flash('The entered category already exists.')
             return redirect(url_for('new_category'))
@@ -340,22 +325,20 @@ def new_category():
         return render_template('add_new_cat.html')
 
 
+"""Route below allows the user to select there desired """
+"""category item (if they are logged in)"""
+"""and will allow the name, description, cateogry type to be edited."""
 
-"""
-Route below allows the user to select there desired category item (if they are logged in)
-and will allow the name, description, cateogry type to be edited. 
-"""
+
 @app.route("/catalog/item/<int:item_id>/edit/", methods=['GET', 'POST'])
 def edit_item(item_id):
-    logged_in =is_logged_in()
-
+    logged_in = is_logged_in()
     """Edit existing item."""
     item = session.query(Item).filter_by(id=item_id).first()
     user_id = login_session.get('user_id')
-    if user_id is None or user_id !=item.user_id:
-        return render_template('error.html', error="invalid user", logged_in=logged_in)
-
-
+    if user_id is None or user_id != item.user_id:
+        return render_template('404.html', error="invalid user",
+                               logged_in=logged_in)
     if request.method == 'POST':
         if request.form['name']:
             item.name = request.form['name']
@@ -376,65 +359,39 @@ def edit_item(item_id):
         )
 
 
-"""
-Below route allows user if logged in to edit there category name. on the  edit_cat there
-is authnication that the user will need to be logged in session to make changes. 
-"""
+"""Below route allows user if logged in"""
+"""to edit there category name. on the  edit_caT"""
+
+
 @app.route('/catalog/category/<int:category_id>/edit/',
            methods=['GET', 'POST'])
 def edit_category(category_id):
     """Edit a category."""
-    logged_in=is_logged_in()
-
+    logged_in = is_logged_in()
     category = session.query(Category).filter_by(id=category_id).first()
     user_id = login_session.get('user_id')
 
     if user_id is None or user_id != category.user_id:
         # ensure only authorized users are allowed
-        return render_template('error.html',
+        return render_template('404.html',
                                error='Invalid user',
                                logged_in=logged_in)
-
     if request.method == 'POST':
         if request.form['name']:
             category.name = request.form['name']
             session.add(category)
             session.commit()
             flash('Category successfully updated!')
-            return redirect(url_for('categoryItems',category_id=category.id))
+            return redirect(url_for('categoryItems', category_id=category.id))
     else:
         return render_template('edit_cat.html', category=category)
 
-    # if request.method == 'POST':
-    #     if request.form['name']:
-    #         item.name = request.form['name']
-    #     if request.form['category_name']:
-    #         item.category_name = request.form['category_name']
-    #     if request.form['description']:
-    #         item.description = request.form['description']
-    #     if request.form['category']:
-    #         category = session.query(Category).filter_by(name=request.form['category']).one()
-    #         item.category = category
-    #
-    #     session.add(item)
-    #     session.commit()
-    #     flash('Category Item Successfully Edited!')
-    #     return redirect(url_for('item_Details',
-    #                             category_name=item.category.name))
-    # else:
-    #     categories=session.query(Category).all()
-    #     return render_template('edititem.html',
-    #                            item=item,
-    #                            categories=categories)
-
-
-
-# route for deletling
 
 """
 Route below will be used for both the delete item and category
-just switching the item_id to category_id. 
-"""
+just switching the item_id to category_id."""
+
+
 @app.route('/catalog/<int:item_id>/delete', methods=['GET', 'POST'])
 def delete_item(item_id):
     logged_in = is_logged_in()
@@ -447,11 +404,11 @@ def delete_item(item_id):
     user_id = login_session.get('user_id')
     if user_id is None or user_id != item.user_id:
         # ensure only authorized users are allowed
-        return render_template('error.html',
+        return render_template('404.html',
                                error='Invalid user',
                                logged_in=logged_in)
 
-    if request.method=='POST':
+    if request.method == 'POST':
         session.delete(item)
         session.commit()
         flash('Item was delete successfully')
@@ -459,13 +416,15 @@ def delete_item(item_id):
     else:
         return render_template('deleteitem.html', item=item)
 
+
 """Route will delete category """
-@app.route('/catalog/category/<int:category_id>/delete', methods=['GET', 'POST'])
+
+
+@app.route('/catalog/category/<int:category_id>/delete',
+           methods=['GET', 'POST'])
 def delete_category(category_id):
     """below will delete categories by id in the data base"""
     category = session.query(Category).filter_by(id=category_id).first()
-
-
     if request.method == 'POST':
         session.delete(category)
         session.commit()
@@ -475,9 +434,7 @@ def delete_category(category_id):
         return render_template("deletecat.html", category=category)
 
 
-"""=========================================================================
-code below taken from the restaurant application. 
-==========================================================================="""
+"""taken from resturant app"""
 
 
 def create_user(login_session):
@@ -510,29 +467,28 @@ def getUserID(email):
     except:
         return None
 
-# ====== took this from our crud course for creating function for actions we need to preform
+
+# ====== took this from our crud course for creating
+
 
 def is_logged_in():
     access_token = login_session.get('access_token')
     return access_token is not None
 
-# ===== Function used for login in encryption
+
+"""taken from crud app"""
+
+
 def getToken():
     return ''.join(random.choice(string.ascii_uppercase + string.digits)
                    for x in xrange(32))
 
 
-
-"""=======================================
-  Json End points 
-========================================="""
-# JSON Endpoints
-
 # Return JSON of all the items in the catalog.
+
 @app.route('/api/v1/catalog.json')
 def show_catalog_json():
     """Return JSON of all the items in the catalog."""
-
     items = session.query(Item).order_by(Item.id.desc())
     return jsonify(catalog=[i.serialize for i in items])
 
@@ -542,25 +498,24 @@ def show_catalog_json():
     '/api/v1/categories/<int:category_id>/item/<int:item_id>/JSON')
 def catalog_item_json(category_id, item_id):
     """Return JSON of a particular item in the catalog."""
-
-
-    item = session.query(Item).filter_by(id=item_id, category_id=category_id).first()
+    item = session.query(Item).filter_by(id=item_id,
+                                         category_id=category_id).first()
     if item is not None:
-            return jsonify(item=item.serialize)
+        return jsonify(item=item.serialize)
     else:
-            return jsonify(
-                error='item {} does not belong to category {}.'
-                .format(item_id, category_id))
-
+        return jsonify(item=item.serialize)
 
 
 # Return JSON of all the categories in the catalog.
+
+
 @app.route('/api/v1/categories/JSON')
 def categories_json():
     """Returns JSON of all the categories in the catalog."""
-
     categories = session.query(Category).all()
     return jsonify(categories=[i.serialize for i in categories])
+
+
 if __name__ == "__main__":
     """stackoverflow.com/questions/26080872/secret-key-not-set-in-flask-session-using-the-flask-session-extension,
     had issues with errors when attempting to login in to session"""

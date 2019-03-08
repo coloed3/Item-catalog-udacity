@@ -39,7 +39,7 @@ if (authResult['code']) {
     success: function(result) {
       // Handle or verify the server response if necessary.
       if (result) {
-        $('#result').html(result)
+        $('#result').html(result);
        setTimeout(function() {
         window.location.href = "/";
        }, 4000);
